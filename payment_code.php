@@ -3,7 +3,6 @@ add_action( 'woocommerce_payment_complete', 'so_payment_complete' );
 function so_payment_complete($order_id){
     
     $order = wc_get_order($order_id);
-    echo "Hello world";
      if(!empty($order)){
          $user = $order->get_user();
                       $order_det=array();
