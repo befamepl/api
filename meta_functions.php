@@ -1,7 +1,14 @@
 <?php
-function get_meta_type($data,$arr){
- $key = array_search($data, array_column($arr, 'key'));
- if($key!=""){return $arr[$key]['value'];}
+function get_meta_type($data, $arr){
+    if (!is_array($arr) || empty($arr)) {
+        return null;
+    }
+    $keys = array_column($arr, 'key');
+    $keyIndex = array_search($data, $keys, true);
+    if ($keyIndex !== false && isset($arr[$keyIndex]['value'])) {
+        return $arr[$keyIndex]['value'];
+    }
+    return null;
 }
 
 

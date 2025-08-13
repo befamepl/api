@@ -2,7 +2,7 @@
 //LINK PRODUCT PAGE CODE
 function kia_custom_option(){
   global $product;  
-  $id = $product->id;
+  $id = is_object($product) && method_exists($product, 'get_id') ? $product->get_id() : $product->id;
   $field_title = get_post_meta( $id, '_field_title', true );
     $field_description = get_post_meta( $id, '_field_description', true );
 
@@ -16,7 +16,7 @@ function kia_custom_option(){
             </div>
             <div class="wapf-field-input">
                 
-<input type="text" value="" name="_custom_option" class="wapf-input" value="'.$value .'" required="">            </div>
+<input type="text" name="_custom_option" class="wapf-input" value="'.$value .'" required="">            </div>
 
             
             
@@ -27,13 +27,12 @@ function kia_custom_option(){
     // CUSTOM COMMENT
     if(get_service_type($id)=='custom_comments'){
     $value2 = isset( $_POST['_custom_comment'] ) ? sanitize_text_field( $_POST['_custom_comment'] ) : '';
-    printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">%s</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><textarea name="_custom_comment" value="%s" class="link_txtbox" id="custom_comment"></textarea><span id="comment_quantity" style="display:none">1</span></div></div>', __( 'Comment  ', 'kia-plugin-textdomains' ), esc_attr( $value2 ) );}
+    printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">%s</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><textarea name="_custom_comment" class="link_txtbox" id="custom_comment">%s</textarea><span id="comment_quantity" style="display:none">1</span></div></div>', __( 'Comment  ', 'kia-plugin-textdomains' ), esc_textarea( $value2 ) );}
 
     //MENTION CUSTOM LIST
     if(get_service_type($id)=='mention_custom_list'){
     $value2 = isset( $_POST['_mention_custom_list'] ) ? sanitize_text_field( $_POST['_mention_custom_list'] ) : '';
-    printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">%s</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><input name="_mention_custom_list" value="%s" class="link_txtbox" /></div></div>', __( 'MentionCustomList', '
-' ), esc_attr( $value2 ) );}
+    printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">%s</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><input name="_mention_custom_list" value="%s" class="link_txtbox" /></div></div>', __( 'MentionCustomList', 'plugin-mention-custom-list' ), esc_attr( $value2 ) );}
 
     //MENTION USER FOLLOWER
     if(get_service_type($id)=='mention_user_follower'){
@@ -57,7 +56,7 @@ function kia_custom_option(){
   //SUBSCRIPTION
   if(get_service_type($id)=='subscription'){
     $value2 = isset( $_POST['_username'] ) ? sanitize_text_field( $_POST['_username'] ) : '';
-    printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">Benutzername</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><input name="_username" type="text" value=""  class="link_txtbox"/></div></div>', __( 'Username', 'plugin-username' ), esc_attr( $value2 ) );
+    printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">%s</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><input name="_username" type="text" value="%s"  class="link_txtbox"/></div></div>', __( 'Username', 'plugin-username' ), esc_attr( $value2 ) );
   
    }
    //PACKAGE
@@ -78,21 +77,21 @@ add_action( 'woocommerce_before_add_to_cart_button', 'kia_custom_option', 9 );
 function kia_add_to_cart_validation($passed, $product_id, $qty){
     if( isset( $_POST['_custom_option'] ) && sanitize_text_field( $_POST['_custom_option'] ) == '' ){
         $product = wc_get_product( $product_id );
-        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Link.', 'kia-plugin-textdomain' ), $product->get_title() ), 'error' );
+        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Link.', 'kia-plugin-textdomain' ), $product->get_name() ), 'error' );
         return false;
     }
     // Custom Comment
     if(get_service_type($product_id)=='custom_comments'){
     if( isset( $_POST['_custom_comment'] ) && sanitize_text_field( $_POST['_custom_comment'] ) == '' ){
         $product = wc_get_product( $product_id );
-        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Comment.', 'kia-plugin-textdomains' ), $product->get_title() ), 'error' );
+        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Comment.', 'kia-plugin-textdomains' ), $product->get_name() ), 'error' );
         return false;
     }}
     // Mention Custom List
     if(get_service_type($product_id)=='mention_custom_list'){
     if( isset( $_POST['_mention_custom_list'] ) && sanitize_text_field( $_POST['_mention_custom_list'] ) == '' ){
         $product = wc_get_product( $product_id );
-        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Mention Custom list.', 'plugin-mention-custom-list' ), $product->get_title() ), 'error' );
+        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Mention Custom list.', 'plugin-mention-custom-list' ), $product->get_name() ), 'error' );
         return false;
     }}
 
@@ -100,14 +99,14 @@ function kia_add_to_cart_validation($passed, $product_id, $qty){
     if(get_service_type($product_id)=='mention_user_follower'){
     if( isset( $_POST['_mention_user_follower'] ) && sanitize_text_field( $_POST['_mention_user_follower'] ) == '' ){
         $product = wc_get_product( $product_id );
-        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Mention User Follower.', 'plugin-mention-user-follower' ), $product->get_title() ), 'error' );
+        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Mention User Follower.', 'plugin-mention-user-follower' ), $product->get_name() ), 'error' );
         return false;
     }}
     //Mention Comment Likes
     if(get_service_type($product_id)=='comment_likes'){
     if( isset( $_POST['_comment_likes'] ) && sanitize_text_field( $_POST['_comment_likes'] ) == '' ){
         $product = wc_get_product( $product_id );
-        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Comment Likes.', 'plugin-comment-likes' ), $product->get_title() ), 'error' );
+        wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Comment Likes.', 'plugin-comment-likes' ), $product->get_name() ), 'error' );
         return false;
     }}
 
@@ -117,12 +116,12 @@ function kia_add_to_cart_validation($passed, $product_id, $qty){
     if(get_service_type($product_id)=='drip_feed'){
       if( isset( $_POST['_runs'] ) && sanitize_text_field( $_POST['_runs'] ) == '' ){
           $product = wc_get_product( $product_id );
-          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Runs.', 'plugin-runs' ), $product->get_title() ), 'error' );
+          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Runs.', 'plugin-runs' ), $product->get_name() ), 'error' );
           return false;
       }
     if( isset( $_POST['_interval'] ) && sanitize_text_field( $_POST['_interval'] ) == '' ){
           $product = wc_get_product( $product_id );
-          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Interval.', 'plugin-interval' ), $product->get_title() ), 'error' );
+          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Interval.', 'plugin-interval' ), $product->get_name() ), 'error' );
           return false;
       }
     }
@@ -131,13 +130,13 @@ function kia_add_to_cart_validation($passed, $product_id, $qty){
     if(get_service_type($product_id)=='subscription'){
       if( isset( $_POST['_username'] ) && sanitize_text_field( $_POST['_username'] ) == '' ){
           $product = wc_get_product( $product_id );
-          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Username.', 'plugin-username' ), $product->get_title() ), 'error' );
+          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Username.', 'plugin-username' ), $product->get_name() ), 'error' );
           return false;
       }
 
       if( isset( $_POST['_posts'] ) && sanitize_text_field( $_POST['_posts'] ) == '' ){
           $product = wc_get_product( $product_id );
-          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Posts.', 'plugin-posts' ), $product->get_title() ), 'error' );
+          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Posts.', 'plugin-posts' ), $product->get_name() ), 'error' );
           return false;
       }
   }
@@ -146,7 +145,7 @@ function kia_add_to_cart_validation($passed, $product_id, $qty){
     if(get_service_type($product_id)=='mention_package'){
       if( isset( $_POST['_package'] ) && sanitize_text_field( $_POST['_package'] ) == '' ){
           $product = wc_get_product( $product_id );
-          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Package.', 'plugin-package' ), $product->get_title() ), 'error' );
+          wc_add_notice( sprintf( __( '%s cannot be added to the cart until you enter Package.', 'plugin-package' ), $product->get_name() ), 'error' );
           return false;
       }
   }
@@ -202,7 +201,7 @@ function kia_add_cart_item_data( $cart_item, $product_id ){
     }
 
   //PACKAGE
-  if(get_service_type($product_id)=='comment_likes'){
+  if(get_service_type($product_id)=='mention_package'){
     if( isset( $_POST['_package'] ) ) {
         $cart_item['package'] = sanitize_text_field( $_POST['_package'] );
     }}  
