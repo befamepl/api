@@ -2,7 +2,7 @@
 //LINK PRODUCT PAGE CODE
 function kia_custom_option(){
   global $product;  
-  $id = $product->id;
+  $id = method_exists($product, 'get_id') ? $product->get_id() : $product->id;
   $field_title = get_post_meta( $id, '_field_title', true );
     $field_description = get_post_meta( $id, '_field_description', true );
 
@@ -16,7 +16,7 @@ function kia_custom_option(){
             </div>
             <div class="wapf-field-input">
                 
-<input type="text" value="" name="_custom_option" class="wapf-input" value="'.$value .'" required="">            </div>
+<input type="text" name="_custom_option" class="wapf-input" value="'.$value .'" required="">            </div>
 
             
             
@@ -202,7 +202,7 @@ function kia_add_cart_item_data( $cart_item, $product_id ){
     }
 
   //PACKAGE
-  if(get_service_type($product_id)=='comment_likes'){
+  if(get_service_type($product_id)=='mention_package'){
     if( isset( $_POST['_package'] ) ) {
         $cart_item['package'] = sanitize_text_field( $_POST['_package'] );
     }}  

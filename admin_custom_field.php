@@ -12,6 +12,7 @@ function my_action_callback() {
     // FOR SERVICES     
     $services = $api->services();
     $service_data = json_decode(json_encode($services),True);
+    $option_arr = array();
     foreach($service_data as $row){$option_arr[] = array($row['service']=>$row['name']);}
     $newArray = array();
     foreach($option_arr as $array) {foreach($array as $k=>$v) {$newArray[$k] = $v; }}
@@ -31,7 +32,7 @@ function woo_add_custom_general_fields() {
     $newArray = array();
         if(isset($_GET['post'])){
             $post_id = $_GET['post'];
-        $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$_GET['post']." and meta_key like '%_service_parent%'", OBJECT );
+        $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".@$_GET['post']." and meta_key like '%_service_parent%'", OBJECT );
         if(sizeof($results)>0){
         $service_val = json_decode(json_encode($results),True);
         $parent_id = $service_val[0]['meta_value']; 
@@ -46,7 +47,7 @@ function woo_add_custom_general_fields() {
         // FOR SERVICES     
         $services = $api->services();
         $service_data = json_decode(json_encode($services),True);
-        //$option_arr=[];
+        $option_arr = array();
         foreach($service_data as $row){$option_arr[] = array($row['service']=>$row['name']);}
         foreach($option_arr as $array) {foreach($array as $k=>$v) {$newArray[$k] = $v; }}
         }
