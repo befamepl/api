@@ -78,76 +78,136 @@ function _ftp_bunch(){
    
    ?>
    <?php
-if(isset($_POST['api_submit']))
+// Add nonce verification for security
+if(isset($_POST['api_submit']) && wp_verify_nonce($_POST['api_nonce'], 'api_form_action'))
 { 
-  $panel_name = $_POST['panel_name'];
-  $api_url = $_POST['api_url'];
-  $api_key = $_POST['api_key'];
+  // Sanitize and validate all input data
+  $panel_name = sanitize_text_field($_POST['panel_name']);
+  $api_url = esc_url_raw($_POST['api_url']);
+  $api_key = sanitize_text_field($_POST['api_key']);
   
-  $panel_name2 = $_POST['panel_name2'];
-  $api_url2 = $_POST['api_url2'];
-  $api_key2 = $_POST['api_key2'];
+  $panel_name2 = sanitize_text_field($_POST['panel_name2']);
+  $api_url2 = esc_url_raw($_POST['api_url2']);
+  $api_key2 = sanitize_text_field($_POST['api_key2']);
   
-  $panel_name3 = $_POST['panel_name3'];
-  $api_url3 = $_POST['api_url3'];
-  $api_key3 = $_POST['api_key3'];
+  $panel_name3 = sanitize_text_field($_POST['panel_name3']);
+  $api_url3 = esc_url_raw($_POST['api_url3']);
+  $api_key3 = sanitize_text_field($_POST['api_key3']);
   
-  $panel_name4 = $_POST['panel_name4'];
-  $api_url4 = $_POST['api_url4'];
-  $api_key4 = $_POST['api_key4'];
+  $panel_name4 = sanitize_text_field($_POST['panel_name4']);
+  $api_url4 = esc_url_raw($_POST['api_url4']);
+  $api_key4 = sanitize_text_field($_POST['api_key4']);
 
-  $wpdb->query("INSERT INTO $tablename(`api_url`, `api_key`, `panel_name`) VALUES ('".$api_url."','".$api_key."','".$panel_name."')");
-  $wpdb->query("INSERT INTO $tablename(`api_url`, `api_key`, `panel_name`) VALUES ('".$api_url2."','".$api_key2."','".$panel_name2."')");
-  $wpdb->query("INSERT INTO $tablename(`api_url`, `api_key`, `panel_name`) VALUES ('".$api_url3."','".$api_key3."','".$panel_name3."')");
-  $wpdb->query("INSERT INTO $tablename(`api_url`, `api_key`, `panel_name`) VALUES ('".$api_url4."','".$api_key4."','".$panel_name4."')");
+  // Use prepared statements to prevent SQL injection
+  $wpdb->insert($tablename, array(
+    'api_url' => $api_url,
+    'api_key' => $api_key,
+    'panel_name' => $panel_name
+  ), array('%s', '%s', '%s'));
+  
+  $wpdb->insert($tablename, array(
+    'api_url' => $api_url2,
+    'api_key' => $api_key2,
+    'panel_name' => $panel_name2
+  ), array('%s', '%s', '%s'));
+  
+  $wpdb->insert($tablename, array(
+    'api_url' => $api_url3,
+    'api_key' => $api_key3,
+    'panel_name' => $panel_name3
+  ), array('%s', '%s', '%s'));
+  
+  $wpdb->insert($tablename, array(
+    'api_url' => $api_url4,
+    'api_key' => $api_key4,
+    'panel_name' => $panel_name4
+  ), array('%s', '%s', '%s'));
+  
   echo "<script>alert('Api has been inserted successfully!!');</script>";
 }
-else if(isset($_POST['api_update'])){
-  $panel_name = $_POST['panel_name'];
-  $api_url = $_POST['api_url'];
-  $api_key = $_POST['api_key'];
+else if(isset($_POST['api_update']) && wp_verify_nonce($_POST['api_nonce'], 'api_form_action')){
+  // Sanitize and validate all input data
+  $panel_name = sanitize_text_field($_POST['panel_name']);
+  $api_url = esc_url_raw($_POST['api_url']);
+  $api_key = sanitize_text_field($_POST['api_key']);
   
-  $panel_name2 = $_POST['panel_name2'];
-  $api_url2 = $_POST['api_url2'];
-  $api_key2 = $_POST['api_key2'];
+  $panel_name2 = sanitize_text_field($_POST['panel_name2']);
+  $api_url2 = esc_url_raw($_POST['api_url2']);
+  $api_key2 = sanitize_text_field($_POST['api_key2']);
   
-  $panel_name3 = $_POST['panel_name3'];
-  $api_url3 = $_POST['api_url3'];
-  $api_key3 = $_POST['api_key3'];
+  $panel_name3 = sanitize_text_field($_POST['panel_name3']);
+  $api_url3 = esc_url_raw($_POST['api_url3']);
+  $api_key3 = sanitize_text_field($_POST['api_key3']);
   
-  $panel_name4 = $_POST['panel_name4'];
-  $api_url4 = $_POST['api_url4'];
-  $api_key4 = $_POST['api_key4'];
+  $panel_name4 = sanitize_text_field($_POST['panel_name4']);
+  $api_url4 = esc_url_raw($_POST['api_url4']);
+  $api_key4 = sanitize_text_field($_POST['api_key4']);
 
-  $wpdb->query("UPDATE $tablename SET `api_url` ='".$api_url."', `api_key` ='".$api_key."', `panel_name` ='".$panel_name."'  where api_id=1");
-  $wpdb->query("UPDATE $tablename SET `api_url` ='".$api_url2."', `api_key` ='".$api_key2."', `panel_name` ='".$panel_name2."'  where api_id=2");
-  $wpdb->query("UPDATE $tablename SET `api_url` ='".$api_url3."', `api_key` ='".$api_key3."', `panel_name` ='".$panel_name3."'  where api_id=3");
-  $wpdb->query("UPDATE $tablename SET `api_url` ='".$api_url4."', `api_key` ='".$api_key4."', `panel_name` ='".$panel_name4."'  where api_id=4");
+  // Use prepared statements to prevent SQL injection
+  $wpdb->update($tablename, array(
+    'api_url' => $api_url,
+    'api_key' => $api_key,
+    'panel_name' => $panel_name
+  ), array('api_id' => 1), array('%s', '%s', '%s'), array('%d'));
+  
+  $wpdb->update($tablename, array(
+    'api_url' => $api_url2,
+    'api_key' => $api_key2,
+    'panel_name' => $panel_name2
+  ), array('api_id' => 2), array('%s', '%s', '%s'), array('%d'));
+  
+  $wpdb->update($tablename, array(
+    'api_url' => $api_url3,
+    'api_key' => $api_key3,
+    'panel_name' => $panel_name3
+  ), array('api_id' => 3), array('%s', '%s', '%s'), array('%d'));
+  
+  $wpdb->update($tablename, array(
+    'api_url' => $api_url4,
+    'api_key' => $api_key4,
+    'panel_name' => $panel_name4
+  ), array('api_id' => 4), array('%s', '%s', '%s'), array('%d'));
+  
   echo "<script>alert('Api has been updated successfully!!');</script>";
 }
-  $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id=1");
-  $api_data = json_decode(json_encode($api_data),true);
-  $panel_name = $api_data['panel_name'];
-  $api_url = $api_data['api_url']; 
-  $api_key = $api_data['api_key'];
+
+  // Initialize variables to prevent undefined variable warnings
+  $panel_name = $api_url = $api_key = '';
+  $panel_name2 = $api_url2 = $api_key2 = '';
+  $panel_name3 = $api_url3 = $api_key3 = '';
+  $panel_name4 = $api_url4 = $api_key4 = '';
   
-  $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id=2");
-  $api_data = json_decode(json_encode($api_data),true);
-  $panel_name2 = $api_data['panel_name'];
-  $api_url2 = $api_data['api_url']; 
-  $api_key2 = $api_data['api_key'];
+  $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", 1));
+  if($api_data) {
+    $api_data = json_decode(json_encode($api_data),true);
+    $panel_name = $api_data['panel_name'];
+    $api_url = $api_data['api_url']; 
+    $api_key = $api_data['api_key'];
+  }
   
-  $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id=3");
-  $api_data = json_decode(json_encode($api_data),true);
-  $panel_name3 = $api_data['panel_name'];
-  $api_url3 = $api_data['api_url']; 
-  $api_key3 = $api_data['api_key'];
+  $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", 2));
+  if($api_data) {
+    $api_data = json_decode(json_encode($api_data),true);
+    $panel_name2 = $api_data['panel_name'];
+    $api_url2 = $api_data['api_url']; 
+    $api_key2 = $api_data['api_key'];
+  }
   
-  $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id=4");
-  $api_data = json_decode(json_encode($api_data),true);
-  $panel_name4 = $api_data['panel_name'];
-  $api_url4 = $api_data['api_url']; 
-  $api_key4 = $api_data['api_key'];
+  $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", 3));
+  if($api_data) {
+    $api_data = json_decode(json_encode($api_data),true);
+    $panel_name3 = $api_data['panel_name'];
+    $api_url3 = $api_data['api_url']; 
+    $api_key3 = $api_data['api_key'];
+  }
+  
+  $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", 4));
+  if($api_data) {
+    $api_data = json_decode(json_encode($api_data),true);
+    $panel_name4 = $api_data['panel_name'];
+    $api_url4 = $api_data['api_url']; 
+    $api_key4 = $api_data['api_key'];
+  }
 ?>
   <style>
 body {font-family: Arial;}
@@ -190,8 +250,6 @@ body {font-family: Arial;}
 }
 
 </style>
-</head>
-<body>
  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -217,6 +275,7 @@ body {font-family: Arial;}
             <div class="row">
                <div class="col-sm-12">
                   <form method="POST" action="#">
+                      <?php wp_nonce_field('api_form_action', 'api_nonce'); ?>
                       <h2>API 1</h2>
                   
                   <div class="form-group">
@@ -336,7 +395,7 @@ body {font-family: Arial;}
                 <td><?= $row['order_id'] ?></td>
                 <td><?= @date('d-m-Y',strtotime($row['created_at']))?></td>
                 <td><?= $row['type']?></td>
-                <td><?php if(!empty(get_service_name($row['service_id'],$row['product_id']))){ echo get_service_name($row['service_id'],$row['product_id']);}?> </td>
+                <td><?php echo get_service_name($row['service_id'],$row['product_id']);?> </td>
                 <td><a href="<?= $row['link']?>" target="_blank"><?= $row['link']?></a></td>
                 <td><?= $row['quantity']?></td>
                 <td><?= $row['mesg'] ?></td>

@@ -43,7 +43,11 @@ function so_payment_complete($order_id){
             
           global $wpdb;
            for($i=0;$i<count($order_det);$i++){ 
-           $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']."", OBJECT );    
+           // Use prepared statement to prevent SQL injection
+           $results = $wpdb->get_results($wpdb->prepare(
+               "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d", 
+               $order_det[$i]['product_id']
+           ));
            $service_val = json_decode(json_encode($results),True);
           
            $original_link=$link[$i];
@@ -51,20 +55,36 @@ function so_payment_complete($order_id){
            $arr = explode(' ',trim($myvalue));
            $real_quantity = $arr[0]*$order_det[$i]['quantity'];
 
-           $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']." and meta_key like '%_Service%'", OBJECT );    
+           // Use prepared statement to prevent SQL injection
+           $results = $wpdb->get_results($wpdb->prepare(
+               "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d AND meta_key LIKE %s", 
+               $order_det[$i]['product_id'], 
+               '%_Service%'
+           ));
            $service_val = json_decode(json_encode($results),True);
           $service_id = get_post_meta($order_det[$i]['product_id'], '_Service', true);
                    
-           $result1 = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']." and meta_key like '%_service_type%'", OBJECT );    
+           // Use prepared statement to prevent SQL injection
+           $result1 = $wpdb->get_results($wpdb->prepare(
+               "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d AND meta_key LIKE %s", 
+               $order_det[$i]['product_id'], 
+               '%_service_type%'
+           ));
            $service_type = json_decode(json_encode($result1),True);
-           $service_type = $service_type[0]['meta_value'];
+           $service_type = isset($service_type[0]['meta_value']) ? $service_type[0]['meta_value'] : '';
 
-             $results2 = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']." and meta_key like '%_service_parent%'", OBJECT );
+             // Use prepared statement to prevent SQL injection
+             $results2 = $wpdb->get_results($wpdb->prepare(
+                 "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d AND meta_key LIKE %s", 
+                 $order_det[$i]['product_id'], 
+                 '%_service_parent%'
+             ));
              $api_arr = json_decode(json_encode($results2),True);
-             $api_id = $api_arr[0]['meta_value']; 
+             $api_id = isset($api_arr[0]['meta_value']) ? intval($api_arr[0]['meta_value']) : 0; 
 
            $tablename=$wpdb->prefix . "api_credentials";
-           $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id=".$api_id."");
+           // Use prepared statement to prevent SQL injection
+           $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", $api_id));
        $api_data = json_decode(json_encode($api_data),true);
 
            $api = new Api();
@@ -123,7 +143,7 @@ function so_payment_complete($order_id){
             //No Link And Quantity Required
             $username = get_meta_type('username',$arr);
             //$posts = get_meta_type('posts',$arr);
-            $posts = $post_arr[$i];
+            $posts = isset($post_arr[$i]) ? $post_arr[$i] : '';
             $original_link ="https://www.instagram.com/".$username;
              $order = $api->order(array('service' => $service_id,'min'=>$real_quantity,'max'=>$real_quantity ,'username' => $username, 'link' => $original_link, 'posts' => $posts));
             $type="Subscription";
@@ -181,7 +201,11 @@ function your_function($order_id) {
             
           global $wpdb;
            for($i=0;$i<count($order_det);$i++){ 
-           $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']."", OBJECT );    
+           // Use prepared statement to prevent SQL injection
+           $results = $wpdb->get_results($wpdb->prepare(
+               "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d", 
+               $order_det[$i]['product_id']
+           ));
            $service_val = json_decode(json_encode($results),True);
           
            $original_link=$link[$i];
@@ -191,20 +215,36 @@ function your_function($order_id) {
 
 
            
-           $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']." and meta_key like '%_Service%'", OBJECT );    
+           // Use prepared statement to prevent SQL injection
+           $results = $wpdb->get_results($wpdb->prepare(
+               "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d AND meta_key LIKE %s", 
+               $order_det[$i]['product_id'], 
+               '%_Service%'
+           ));
            $service_val = json_decode(json_encode($results),True);
           $service_id = get_post_meta($order_det[$i]['product_id'], '_Service', true);
            
-           $result1 = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']." and meta_key like '%_service_type%'", OBJECT );    
+           // Use prepared statement to prevent SQL injection
+           $result1 = $wpdb->get_results($wpdb->prepare(
+               "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d AND meta_key LIKE %s", 
+               $order_det[$i]['product_id'], 
+               '%_service_type%'
+           ));
            $service_type = json_decode(json_encode($result1),True);
-           $service_type = $service_type[0]['meta_value'];
+           $service_type = isset($service_type[0]['meta_value']) ? $service_type[0]['meta_value'] : '';
 
-             $results2 = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']." and meta_key like '%_service_parent%'", OBJECT );
+             // Use prepared statement to prevent SQL injection
+             $results2 = $wpdb->get_results($wpdb->prepare(
+                 "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d AND meta_key LIKE %s", 
+                 $order_det[$i]['product_id'], 
+                 '%_service_parent%'
+             ));
              $api_arr = json_decode(json_encode($results2),True);
-             $api_id = $api_arr[0]['meta_value']; 
+             $api_id = isset($api_arr[0]['meta_value']) ? intval($api_arr[0]['meta_value']) : 0; 
 
            $tablename=$wpdb->prefix . "api_credentials";
-           $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id=".$api_id."");
+           // Use prepared statement to prevent SQL injection
+           $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", $api_id));
        $api_data = json_decode(json_encode($api_data),true);
 
            $api = new Api();
@@ -263,7 +303,7 @@ function your_function($order_id) {
             //No Link And Quantity Required
             $username = get_meta_type('username',$arr);
             //$posts = get_meta_type('posts',$arr);
-            $posts = $post_arr[$i];
+            $posts = isset($post_arr[$i]) ? $post_arr[$i] : '';
             $original_link ="https://www.instagram.com/".$username;
              $order = $api->order(array('service' => $service_id,'min'=>$real_quantity,'max'=>$real_quantity ,'username' => $username, 'link' => $original_link, 'posts' => $posts));
             $type="Subscription";
