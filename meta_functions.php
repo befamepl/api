@@ -1,7 +1,7 @@
 <?php
 function get_meta_type($data,$arr){
  $key = array_search($data, array_column($arr, 'key'));
- if($key!=""){return $arr[$key]['value'];}
+ if($key !== false){return $arr[$key]['value'];}
 }
 
 
@@ -22,22 +22,32 @@ function get_service_name($service_id,$product_id){
     global $wpdb;
     $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$product_id." and meta_key like '%_service_parent%'", OBJECT );
     $service_val = json_decode(json_encode($results),True);
-    $parent_id = $service_val[0]['meta_value']; 
+    $parent_id = isset($service_val[0]['meta_value']) ? $service_val[0]['meta_value'] : null; 
+    
+    if(!$parent_id){
+        return '';
+    }
     
     $tablename=$wpdb->prefix."api_credentials";
     $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id=".$parent_id."");
     $api_data = json_decode(json_encode($api_data),true);
+    if(empty($api_data)){
+        return '';
+    }
     $api = new Api();
     $api->api_url=$api_data['api_url'];
     $api->api_key= $api_data['api_key'];
     // FOR SERVICES     
     $services = $api->services();
-	    if(!empty($services)){
-	    $service_data = json_decode(json_encode($services),True);
-	    $service_name ="";
-	    foreach($service_data as $row){if($row['service']==$service_id){ $service_name = $row['name'];}} 
-	    if(!empty($service_name)){ echo $service_name;}else{echo "<span style='color:#FF0000'>Api Missing</span>";}
-	}
+        if(empty($services)){
+            return '';
+        }
+        $service_data = json_decode(json_encode($services),True);
+        $service_name ="";
+        foreach($service_data as $row){
+            if($row['service']==$service_id){ $service_name = $row['name']; break;}
+        } 
+        return $service_name;
 }
 
 

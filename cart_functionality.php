@@ -2,7 +2,7 @@
 //LINK PRODUCT PAGE CODE
 function kia_custom_option(){
   global $product;  
-  $id = $product->id;
+  $id = is_object($product) ? $product->get_id() : get_the_ID();
   $field_title = get_post_meta( $id, '_field_title', true );
     $field_description = get_post_meta( $id, '_field_description', true );
 
@@ -16,7 +16,7 @@ function kia_custom_option(){
             </div>
             <div class="wapf-field-input">
                 
-<input type="text" value="" name="_custom_option" class="wapf-input" value="'.$value .'" required="">            </div>
+<input type="text" name="_custom_option" class="wapf-input" value="'.$value .'" required>            </div>
 
             
             
@@ -59,6 +59,8 @@ function kia_custom_option(){
     $value2 = isset( $_POST['_username'] ) ? sanitize_text_field( $_POST['_username'] ) : '';
     printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">Benutzername</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><input name="_username" type="text" value=""  class="link_txtbox"/></div></div>', __( 'Username', 'plugin-username' ), esc_attr( $value2 ) );
   
+    $value3 = isset( $_POST['_posts'] ) ? sanitize_text_field( $_POST['_posts'] ) : '';
+    printf( '<div class="row"><div class="col-md-6 col-sm-6 col-xs-6"><label class="link_lbl">%s</label>&nbsp;&nbsp;</div><div class="col-md-6 col-sm-6 col-xs-6"><input name="_posts" type="number" value="%s"  class="link_txtbox"/></div></div>', __( 'Posts', 'plugin-posts' ), esc_attr( $value3 ) );
    }
    //PACKAGE
    if(get_service_type($id)=='mention_package'){
@@ -202,7 +204,7 @@ function kia_add_cart_item_data( $cart_item, $product_id ){
     }
 
   //PACKAGE
-  if(get_service_type($product_id)=='comment_likes'){
+  if(get_service_type($product_id)=='mention_package'){
     if( isset( $_POST['_package'] ) ) {
         $cart_item['package'] = sanitize_text_field( $_POST['_package'] );
     }}  
