@@ -202,7 +202,7 @@ function kia_add_cart_item_data( $cart_item, $product_id ){
     }
 
   //PACKAGE
-  if(get_service_type($product_id)=='comment_likes'){
+  if(get_service_type($product_id)=='mention_package'){
     if( isset( $_POST['_package'] ) ) {
         $cart_item['package'] = sanitize_text_field( $_POST['_package'] );
     }}  

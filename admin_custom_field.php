@@ -3,21 +3,52 @@ add_action('wp_ajax_my_action', 'my_action_callback');
 
 function my_action_callback() {
     global $wpdb; // this is how you get access to the database
+    
+    // Validate and sanitize the panel_id
+    if(!isset($_POST['panel_id']) || !is_numeric($_POST['panel_id'])) {
+        echo "<option>Invalid Panel ID</option>";
+        exit();
+    }
+    
+    $panel_id = intval($_POST['panel_id']);
     $tablename=$wpdb->prefix."api_credentials";
-    $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id='".$_POST['panel_id']."'");
+    
+    // Use prepared statement to prevent SQL injection
+    $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", $panel_id));
+    
+    if(empty($api_data)) {
+        echo "<option>API credentials not found</option>";
+        exit();
+    }
+    
     $api_data = json_decode(json_encode($api_data),true);
     $api = new Api();
     $api->api_url=$api_data['api_url'];
     $api->api_key= $api_data['api_key'];
     // FOR SERVICES     
     $services = $api->services();
+    
+    if(empty($services)) {
+        echo "<option>Failed to fetch services</option>";
+        exit();
+    }
+    
     $service_data = json_decode(json_encode($services),True);
-    foreach($service_data as $row){$option_arr[] = array($row['service']=>$row['name']);}
+    $option_arr = array();
+    foreach($service_data as $row){
+        if(isset($row['service']) && isset($row['name'])) {
+            $option_arr[] = array($row['service']=>$row['name']);
+        }
+    }
     $newArray = array();
-    foreach($option_arr as $array) {foreach($array as $k=>$v) {$newArray[$k] = $v; }}
+    foreach($option_arr as $array) {
+        foreach($array as $k=>$v) {
+            $newArray[$k] = $v; 
+        }
+    }
     $abc="<option>Select Service</option>";
     foreach($newArray as $key =>$row){
-    $abc.= "<option value=".$key.">".$row."</option>";   
+    $abc.= "<option value=".esc_attr($key).">".esc_html($row)."</option>";   
     }
     echo $abc;
     exit();
@@ -29,26 +60,50 @@ add_action( 'woocommerce_product_options_general_product_data', 'woo_add_custom_
 function woo_add_custom_general_fields() {
     global $wpdb;
     $newArray = array();
-        if(isset($_GET['post'])){
-            $post_id = $_GET['post'];
-        $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$_GET['post']." and meta_key like '%_service_parent%'", OBJECT );
+    $post_id = 0;
+    
+        if(isset($_GET['post']) && is_numeric($_GET['post'])){
+            $post_id = intval($_GET['post']);
+        
+        // Use prepared statement to prevent SQL injection
+        $results = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = %d AND meta_key LIKE %s", 
+            $post_id, 
+            '%_service_parent%'
+        ));
+        
         if(sizeof($results)>0){
         $service_val = json_decode(json_encode($results),True);
-        $parent_id = $service_val[0]['meta_value']; 
+        $parent_id = intval($service_val[0]['meta_value']); 
         // FOR API KEY
         global $wpdb;
         $tablename=$wpdb->prefix . "api_credentials";
-        $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id='".$parent_id."'");
+        
+        // Use prepared statement to prevent SQL injection
+        $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename WHERE api_id = %d", $parent_id));
+        
+        if(!empty($api_data)) {
         $api_data = json_decode(json_encode($api_data),true);
         $api = new Api();
         $api->api_url=$api_data['api_url'];
         $api->api_key= $api_data['api_key'];
         // FOR SERVICES     
         $services = $api->services();
+        if(!empty($services)) {
         $service_data = json_decode(json_encode($services),True);
-        //$option_arr=[];
-        foreach($service_data as $row){$option_arr[] = array($row['service']=>$row['name']);}
-        foreach($option_arr as $array) {foreach($array as $k=>$v) {$newArray[$k] = $v; }}
+        $option_arr = array();
+        foreach($service_data as $row){
+            if(isset($row['service']) && isset($row['name'])) {
+                $option_arr[] = array($row['service']=>$row['name']);
+            }
+        }
+        foreach($option_arr as $array) {
+            foreach($array as $k=>$v) {
+                $newArray[$k] = $v; 
+            }
+        }
+        }
+        }
         }
     }
 	echo "<p>For using below service dropdown product type will be variable product</p>";
