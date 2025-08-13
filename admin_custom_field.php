@@ -72,7 +72,7 @@ function woo_add_custom_general_fields() {
     foreach($api_data as $row => $value)
     { $service_parent[$value['api_id']] = $value['panel_name'];}
     
-    array_unshift($service_parent, 'Select Panel');
+    $service_parent = array('' => 'Select Panel') + $service_parent;
 
     $field_title = get_post_meta( $post_id, '_field_title', true );
     $field_description = get_post_meta( $post_id, '_field_description', true );

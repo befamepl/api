@@ -3,14 +3,13 @@ add_action( 'woocommerce_payment_complete', 'so_payment_complete' );
 function so_payment_complete($order_id){
     
     $order = wc_get_order($order_id);
-    echo "Hello world";
      if(!empty($order)){
          $user = $order->get_user();
                       $order_det=array();
                       foreach ($order->get_items() as $key => $lineItem) {
                       //$order_det = json_decode($lineItem,true);
                       
-                      array_push($order_det,json_decode($lineItem,true));
+                      array_push($order_det,json_decode(json_encode($lineItem),true));
                       
                       }
              $sex=[];
@@ -148,7 +147,7 @@ function your_function($order_id) {
                       foreach ($order->get_items() as $key => $lineItem) {
                       //$order_det = json_decode($lineItem,true);
                       
-                      array_push($order_det,json_decode($lineItem,true));
+                      array_push($order_det,json_decode(json_encode($lineItem),true));
                       
                       }
              $sex=[];
@@ -188,7 +187,6 @@ function your_function($order_id) {
            $myvalue = (!empty($quantity[$i]) ? $quantity[$i] : 0 );
            $arr = explode(' ',trim($myvalue));
            $real_quantity = $arr[0]*$order_det[$i]['quantity'];
-
 
            
            $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$order_det[$i]['product_id']." and meta_key like '%_Service%'", OBJECT );    
@@ -271,7 +269,7 @@ function your_function($order_id) {
             break;
 
            }
-             
+            
            }
         }
-  }
+}
