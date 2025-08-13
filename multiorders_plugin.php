@@ -336,7 +336,7 @@ body {font-family: Arial;}
                 <td><?= $row['order_id'] ?></td>
                 <td><?= @date('d-m-Y',strtotime($row['created_at']))?></td>
                 <td><?= $row['type']?></td>
-                <td><?php if(!empty(get_service_name($row['service_id'],$row['product_id']))){ echo get_service_name($row['service_id'],$row['product_id']);}?> </td>
+                <td><?= get_service_name($row['service_id'],$row['product_id']); ?> </td>
                 <td><a href="<?= $row['link']?>" target="_blank"><?= $row['link']?></a></td>
                 <td><?= $row['quantity']?></td>
                 <td><?= $row['mesg'] ?></td>

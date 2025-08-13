@@ -1,7 +1,7 @@
 <?php
 function get_meta_type($data,$arr){
  $key = array_search($data, array_column($arr, 'key'));
- if($key!=""){return $arr[$key]['value'];}
+ if($key !== false){return $arr[$key]['value'];}
 }
 
 
@@ -32,12 +32,19 @@ function get_service_name($service_id,$product_id){
     $api->api_key= $api_data['api_key'];
     // FOR SERVICES     
     $services = $api->services();
-	    if(!empty($services)){
-	    $service_data = json_decode(json_encode($services),True);
-	    $service_name ="";
-	    foreach($service_data as $row){if($row['service']==$service_id){ $service_name = $row['name'];}} 
-	    if(!empty($service_name)){ echo $service_name;}else{echo "<span style='color:#FF0000'>Api Missing</span>";}
-	}
+    if(!empty($services)){
+        $service_data = json_decode(json_encode($services),True);
+        $service_name = "";
+        foreach($service_data as $row){
+            if($row['service']==$service_id){ $service_name = $row['name'];}
+        }
+        if(!empty($service_name)){
+            return $service_name;
+        } else {
+            return "<span style='color:#FF0000'>Api Missing</span>";
+        }
+    }
+    return "";
 }
 
 
