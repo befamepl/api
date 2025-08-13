@@ -3,25 +3,36 @@ add_action('wp_ajax_my_action', 'my_action_callback');
 
 function my_action_callback() {
     global $wpdb; // this is how you get access to the database
-    $tablename=$wpdb->prefix."api_credentials";
-    $api_data = $wpdb->get_row("SELECT * FROM $tablename where api_id='".$_POST['panel_id']."'");
-    $api_data = json_decode(json_encode($api_data),true);
+    $tablename = $wpdb->prefix . "api_credentials";
+    $panel_id = isset($_POST['panel_id']) ? intval($_POST['panel_id']) : 0;
+    $api_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM $tablename where api_id=%d", $panel_id));
+    $api_data = json_decode(json_encode($api_data), true);
+    if (empty($api_data)) {
+        wp_send_json_error('Invalid panel');
+    }
     $api = new Api();
-    $api->api_url=$api_data['api_url'];
-    $api->api_key= $api_data['api_key'];
-    // FOR SERVICES     
+    $api->api_url = $api_data['api_url'];
+    $api->api_key = $api_data['api_key'];
+    // FOR SERVICES    
     $services = $api->services();
-    $service_data = json_decode(json_encode($services),True);
-    foreach($service_data as $row){$option_arr[] = array($row['service']=>$row['name']);}
+    $service_data = json_decode(json_encode($services), true);
+    $option_arr = array();
+    foreach ($service_data as $row) {
+        $option_arr[] = array($row['service'] => $row['name']);
+    }
     $newArray = array();
-    foreach($option_arr as $array) {foreach($array as $k=>$v) {$newArray[$k] = $v; }}
-    $abc="<option>Select Service</option>";
-    foreach($newArray as $key =>$row){
-    $abc.= "<option value=".$key.">".$row."</option>";   
+    foreach ($option_arr as $array) {
+        foreach ($array as $k => $v) {
+            $newArray[$k] = $v;
+        }
+    }
+    $abc = "<option value=\"\">Select Service</option>";
+    foreach ($newArray as $key => $row) {
+        $abc .= "<option value=\"" . esc_attr($key) . "\">" . esc_html($row) . "</option>";
     }
     echo $abc;
     exit();
-    }
+}
 
 
 // SERVICES DROPDOWN CODE
@@ -29,9 +40,10 @@ add_action( 'woocommerce_product_options_general_product_data', 'woo_add_custom_
 function woo_add_custom_general_fields() {
     global $wpdb;
     $newArray = array();
+    $post_id = isset($_GET['post']) ? intval($_GET['post']) : get_the_ID();
         if(isset($_GET['post'])){
             $post_id = $_GET['post'];
-        $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ".$_GET['post']." and meta_key like '%_service_parent%'", OBJECT );
+        $results = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}postmeta WHERE post_id = ". $_GET['post'] ." and meta_key like '%_service_parent%'", OBJECT );
         if(sizeof($results)>0){
         $service_val = json_decode(json_encode($results),True);
         $parent_id = $service_val[0]['meta_value']; 
@@ -46,7 +58,7 @@ function woo_add_custom_general_fields() {
         // FOR SERVICES     
         $services = $api->services();
         $service_data = json_decode(json_encode($services),True);
-        //$option_arr=[];
+        $option_arr = array();
         foreach($service_data as $row){$option_arr[] = array($row['service']=>$row['name']);}
         foreach($option_arr as $array) {foreach($array as $k=>$v) {$newArray[$k] = $v; }}
         }
@@ -72,8 +84,8 @@ function woo_add_custom_general_fields() {
     foreach($api_data as $row => $value)
     { $service_parent[$value['api_id']] = $value['panel_name'];}
     
-    array_unshift($service_parent, 'Select Panel');
-
+    $service_parent = array('' => 'Select Panel') + $service_parent;
+    
     $field_title = get_post_meta( $post_id, '_field_title', true );
     $field_description = get_post_meta( $post_id, '_field_description', true );
 
